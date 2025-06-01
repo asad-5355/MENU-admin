@@ -14,6 +14,7 @@
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
+            --info-color: #17a2b8;
         }
         
         * {
@@ -83,6 +84,7 @@
         /* المحتوى الرئيسي */
         .main-content {
             padding: 20px;
+            overflow-x: hidden;
         }
         
         .header {
@@ -204,7 +206,7 @@
         }
         
         .status.processing {
-            background-color: #17a2b8;
+            background-color: var(--info-color);
             color: white;
         }
         
@@ -430,6 +432,29 @@
             font-weight: bold;
         }
         
+        /* فلتر الطلبات */
+        .orders-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background-color: #eee;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+        }
+        
+        /* تحسينات للجوال */
         @media (max-width: 992px) {
             .container {
                 grid-template-columns: 1fr;
@@ -440,6 +465,48 @@
             }
             
             .order-modal, .notifications-modal {
+                width: 100%;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+            
+            .action-btn {
+                margin-bottom: 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .notification-bell {
+                margin-top: 15px;
+                align-self: flex-end;
+            }
+            
+            .orders-filter {
+                flex-direction: column;
+            }
+            
+            .filter-btn {
                 width: 100%;
             }
         }
@@ -455,27 +522,23 @@
             </div>
             
             <div class="nav-menu">
-                <div class="nav-item active">
+                <div class="nav-item active" onclick="showSection('dashboard')">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>لوحة التحكم</span>
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" onclick="showSection('orders')">
                     <i class="fas fa-shopping-cart"></i>
                     <span>الطلبات</span>
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" onclick="showSection('menu')">
                     <i class="fas fa-utensils"></i>
                     <span>قائمة الطعام</span>
                 </div>
-                <div class="nav-item">
+                <div class="nav-item" onclick="showSection('reports')">
                     <i class="fas fa-chart-bar"></i>
                     <span>التقارير</span>
                 </div>
-                <div class="nav-item">
-                    <i class="fas fa-users"></i>
-                    <span>العملاء</span>
-                </div>
-                <div class="nav-item">
+                <div class="nav-item" onclick="showSection('settings')">
                     <i class="fas fa-cog"></i>
                     <span>الإعدادات</span>
                 </div>
@@ -488,114 +551,102 @@
                 <h1>لوحة تحكم المسؤول</h1>
                 <div class="notification-bell" onclick="toggleNotifications()">
                     <i class="fas fa-bell"></i>
-                    <span class="notification-count">3</span>
+                    <span class="notification-count" id="notificationCount">0</span>
                 </div>
             </div>
             
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <h3>الطلبات اليوم</h3>
-                    <div class="value">24</div>
-                    <div class="change up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>12% عن الأمس</span>
+            <!-- قسم لوحة التحكم -->
+            <div id="dashboardSection">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3>الطلبات اليوم</h3>
+                        <div class="value" id="todayOrders">0</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="ordersChange">0% عن الأمس</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>إجمالي الإيرادات</h3>
+                        <div class="value" id="totalRevenue">0 ر.س</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="revenueChange">0% عن الأسبوع الماضي</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>طلبات قيد التنفيذ</h3>
+                        <div class="value" id="processingOrders">0</div>
+                        <div class="change down">
+                            <i class="fas fa-arrow-down"></i>
+                            <span id="processingChange">0 أقل من المعتاد</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>معدل الإكمال</h3>
+                        <div class="value" id="completionRate">0%</div>
+                        <div class="change up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span id="rateChange">0% عن الشهر الماضي</span>
+                        </div>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <h3>إجمالي الإيرادات</h3>
-                    <div class="value">1,245 ر.س</div>
-                    <div class="change up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>8% عن الأسبوع الماضي</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <h3>طلبات قيد التنفيذ</h3>
-                    <div class="value">5</div>
-                    <div class="change down">
-                        <i class="fas fa-arrow-down"></i>
-                        <span>2 أقل من المعتاد</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <h3>عملاء جدد</h3>
-                    <div class="value">8</div>
-                    <div class="change up">
-                        <i class="fas fa-arrow-up"></i>
-                        <span>3 أكثر من الأسبوع الماضي</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="orders-table">
-                <h2 style="margin-bottom: 20px; color: var(--primary-color);">أحدث الطلبات</h2>
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>رقم الطلب</th>
-                            <th>العميل</th>
-                            <th>التاريخ</th>
-                            <th>المجموع</th>
-                            <th>الحالة</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#1254</td>
-                            <td>أحمد محمد</td>
-                            <td>2023-06-15 12:30</td>
-                            <td>85 ر.س</td>
-                            <td><span class="status pending">قيد الانتظار</span></td>
-                            <td>
-                                <button class="action-btn btn-view" onclick="viewOrder(1254)">عرض</button>
-                                <button class="action-btn btn-process" onclick="processOrder(1254)">معالجة</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1253</td>
-                            <td>سعيد علي</td>
-                            <td>2023-06-15 11:45</td>
-                            <td>120 ر.س</td>
-                            <td><span class="status processing">قيد التنفيذ</span></td>
-                            <td>
-                                <button class="action-btn btn-view" onclick="viewOrder(1253)">عرض</button>
-                                <button class="action-btn btn-complete" onclick="completeOrder(1253)">إكمال</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1252</td>
-                            <td>فاطمة عبدالله</td>
-                            <td>2023-06-15 10:20</td>
-                            <td>65 ر.س</td>
-                            <td><span class="status completed">مكتمل</span></td>
-                            <td>
-                                <button class="action-btn btn-view" onclick="viewOrder(1252)">عرض</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1251</td>
-                            <td>خالد سعد</td>
-                            <td>2023-06-15 09:15</td>
-                            <td>95 ر.س</td>
-                            <td><span class="status cancelled">ملغي</span></td>
-                            <td>
-                                <button class="action-btn btn-view" onclick="viewOrder(1251)">عرض</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#1250</td>
-                            <td>نورة حسن</td>
-                            <td>2023-06-14 20:30</td>
-                            <td>75 ر.س</td>
-                            <td><span class="status completed">مكتمل</span></td>
-                            <td>
-                                <button class="action-btn btn-view" onclick="viewOrder(1250)">عرض</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="orders-table">
+                    <h2 style="margin-bottom: 20px; color: var(--primary-color);">أحدث الطلبات</h2>
+                    
+                    <div id="ordersTable">
+                        <!-- سيتم ملؤه بالبيانات -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم الطلبات -->
+            <div id="ordersSection" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">إدارة الطلبات</h2>
+                
+                <div class="orders-filter">
+                    <button class="filter-btn active" onclick="filterOrders('all')">الكل</button>
+                    <button class="filter-btn" onclick="filterOrders('pending')">قيد الانتظار</button>
+                    <button class="filter-btn" onclick="filterOrders('processing')">قيد التنفيذ</button>
+                    <button class="filter-btn" onclick="filterOrders('completed')">مكتمل</button>
+                    <button class="filter-btn" onclick="filterOrders('cancelled')">ملغي</button>
+                </div>
+                
+                <div class="orders-table">
+                    <table id="allOrdersTable">
+                        <thead>
+                            <tr>
+                                <th>رقم الطلب</th>
+                                <th>العميل</th>
+                                <th>التاريخ</th>
+                                <th>المجموع</th>
+                                <th>طريقة الاستلام</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <!-- سيتم ملؤه بالبيانات -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- الأقسام الأخرى -->
+            <div id="menuSection" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">إدارة قائمة الطعام</h2>
+                <p>هنا يمكنك إدارة قائمة الطعام (سيتم تطويره لاحقًا)</p>
+            </div>
+            
+            <div id="reportsSection" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">التقارير والإحصائيات</h2>
+                <p>هنا يمكنك عرض التقارير (سيتم تطويره لاحقًا)</p>
+            </div>
+            
+            <div id="settingsSection" style="display: none;">
+                <h2 style="margin-bottom: 20px; color: var(--primary-color);">إعدادات النظام</h2>
+                <p>هنا يمكنك تعديل إعدادات النظام (سيتم تطويره لاحقًا)</p>
             </div>
         </div>
     </div>
@@ -633,40 +684,22 @@
                     <span class="info-label">ملاحظات:</span>
                     <span id="orderNotes">بدون بصل في جميع الأصناف</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">حالة الطلب:</span>
+                    <span id="orderStatus">قيد الانتظار</span>
+                </div>
             </div>
             
             <div class="order-items">
                 <h4 style="margin-bottom: 15px; color: var(--primary-color);">الطلبات</h4>
-                
-                <div class="order-item">
-                    <div class="item-name">مندي دجاج</div>
-                    <div class="item-quantity">2 x</div>
-                    <div class="item-price">25 ر.س</div>
-                    <div class="item-total">50 ر.س</div>
-                </div>
-                <div class="order-item">
-                    <div class="item-name">مشروب غازي</div>
-                    <div class="item-quantity">3 x</div>
-                    <div class="item-price">5 ر.س</div>
-                    <div class="item-total">15 ر.س</div>
-                </div>
-                <div class="order-item">
-                    <div class="item-name">سلطة خضراء</div>
-                    <div class="item-quantity">1 x</div>
-                    <div class="item-price">10 ر.س</div>
-                    <div class="item-total">10 ر.س</div>
-                </div>
-                <div class="order-item">
-                    <div class="item-name">متبل باذنجان</div>
-                    <div class="item-quantity">1 x</div>
-                    <div class="item-price">12 ر.س</div>
-                    <div class="item-total">12 ر.س</div>
+                <div id="orderItemsList">
+                    <!-- سيتم ملؤه بالبيانات -->
                 </div>
             </div>
             
             <div class="order-total">
                 <span>المجموع الكلي:</span>
-                <span id="modalOrderTotal">87 ر.س</span>
+                <span id="modalOrderTotal">0 ر.س</span>
             </div>
         </div>
         
@@ -689,27 +722,8 @@
             </button>
         </div>
         
-        <div class="notifications-body">
-            <div class="notification-item unread">
-                <div class="notification-text">طلب جديد #1254 من أحمد محمد</div>
-                <div class="notification-time">منذ 15 دقيقة</div>
-            </div>
-            <div class="notification-item unread">
-                <div class="notification-text">تم إلغاء الطلب #1248 من قبل العميل</div>
-                <div class="notification-time">منذ ساعة</div>
-            </div>
-            <div class="notification-item">
-                <div class="notification-text">تم توصيل الطلب #1245 بنجاح</div>
-                <div class="notification-time">منذ 3 ساعات</div>
-            </div>
-            <div class="notification-item">
-                <div class="notification-text">طلب جديد #1244 من نورة حسن</div>
-                <div class="notification-time">منذ 5 ساعات</div>
-            </div>
-            <div class="notification-item">
-                <div class="notification-text">تم تحديث قائمة الطعام بنجاح</div>
-                <div class="notification-time">منذ يوم</div>
-            </div>
+        <div class="notifications-body" id="notificationsList">
+            <!-- سيتم ملؤه بالبيانات -->
         </div>
         
         <div class="mark-all-read" onclick="markAllAsRead()">
@@ -719,66 +733,173 @@
     
     <script>
         // متغيرات التطبيق
-        let orders = [
-            {
-                id: 1254,
-                customer: "أحمد محمد",
-                phone: "0551234567",
-                date: "2023-06-15 12:30",
-                total: 85,
-                status: "pending",
-                method: "delivery",
-                address: "حي السلام، شارع الملك فهد، الرياض",
-                notes: "بدون بصل في جميع الأصناف",
-                items: [
-                    { name: "مندي دجاج", quantity: 2, price: 25 },
-                    { name: "مشروب غازي", quantity: 3, price: 5 },
-                    { name: "سلطة خضراء", quantity: 1, price: 10 },
-                    { name: "متبل باذنجان", quantity: 1, price: 12 }
-                ]
-            },
-            {
-                id: 1253,
-                customer: "سعيد علي",
-                phone: "0509876543",
-                date: "2023-06-15 11:45",
-                total: 120,
-                status: "processing",
-                method: "store",
-                address: "",
-                notes: "",
-                items: [
-                    { name: "مندي لحم", quantity: 1, price: 35 },
-                    { name: "مضغوط دجاج", quantity: 1, price: 30 },
-                    { name: "كباب", quantity: 2, price: 25 },
-                    { name: "عصير ليمون", quantity: 2, price: 7 }
-                ]
+        let orders = JSON.parse(localStorage.getItem('restaurantOrders')) || [];
+        let notifications = JSON.parse(localStorage.getItem('adminNotifications')) || [];
+        let currentOrder = null;
+        let currentFilter = 'all';
+        
+        // عرض الأقسام
+        function showSection(sectionId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('ordersSection').style.display = 'none';
+            document.getElementById('menuSection').style.display = 'none';
+            document.getElementById('reportsSection').style.display = 'none';
+            document.getElementById('settingsSection').style.display = 'none';
+            
+            document.getElementById(`${sectionId}Section`).style.display = 'block';
+            
+            if (sectionId === 'orders') {
+                renderAllOrdersTable();
+            } else if (sectionId === 'dashboard') {
+                updateDashboardStats();
+                renderRecentOrders();
             }
-        ];
+        }
         
-        let notifications = [
-            { id: 1, text: "طلب جديد #1254 من أحمد محمد", time: "منذ 15 دقيقة", read: false },
-            { id: 2, text: "تم إلغاء الطلب #1248 من قبل العميل", time: "منذ ساعة", read: false },
-            { id: 3, text: "تم توصيل الطلب #1245 بنجاح", time: "منذ 3 ساعات", read: true },
-            { id: 4, text: "طلب جديد #1244 من نورة حسن", time: "منذ 5 ساعات", read: true },
-            { id: 5, text: "تم تحديث قائمة الطعام بنجاح", time: "منذ يوم", read: true }
-        ];
+        // تحديث إحصائيات لوحة التحكم
+        function updateDashboardStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayOrders = orders.filter(order => order.date.includes(today));
+            const yesterdayOrders = orders.filter(order => {
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                return order.date.includes(yesterday.toISOString().split('T')[0]);
+            });
+            
+            const processingOrders = orders.filter(order => order.status === 'processing');
+            const completedOrders = orders.filter(order => order.status === 'completed');
+            
+            // الطلبات اليوم
+            document.getElementById('todayOrders').textContent = todayOrders.length;
+            const ordersChange = yesterdayOrders.length > 0 ? 
+                Math.round(((todayOrders.length - yesterdayOrders.length) / yesterdayOrders.length) * 100) : 100;
+            document.getElementById('ordersChange').textContent = `${ordersChange}% عن الأمس`;
+            
+            // الإيرادات
+            const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+            document.getElementById('totalRevenue').textContent = todayRevenue + ' ر.س';
+            
+            // طلبات قيد التنفيذ
+            document.getElementById('processingOrders').textContent = processingOrders.length;
+            
+            // معدل الإكمال
+            const completionRate = orders.length > 0 ? 
+                Math.round((completedOrders.length / orders.length) * 100) : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+        }
         
-        // فتح/إغلاق نافذة الطلب
+        // عرض أحدث الطلبات
+        function renderRecentOrders() {
+            const recentOrders = [...orders].reverse().slice(0, 5);
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>العميل</th>
+                            <th>التاريخ</th>
+                            <th>المجموع</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            recentOrders.forEach(order => {
+                html += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.customer.name}</td>
+                        <td>${formatDate(order.date)}</td>
+                        <td>${order.total} ر.س</td>
+                        <td><span class="status ${order.status}">${getStatusText(order.status)}</span></td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewOrder('${order.id}')">عرض</button>
+                            ${order.status === 'pending' ? 
+                                `<button class="action-btn btn-process" onclick="processOrder('${order.id}')">معالجة</button>` : ''}
+                            ${order.status === 'processing' ? 
+                                `<button class="action-btn btn-complete" onclick="completeOrder('${order.id}')">إكمال</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            document.getElementById('ordersTable').innerHTML = html;
+        }
+        
+        // عرض جميع الطلبات مع الفلتر
+        function renderAllOrdersTable() {
+            let filteredOrders = [...orders].reverse();
+            
+            if (currentFilter !== 'all') {
+                filteredOrders = filteredOrders.filter(order => order.status === currentFilter);
+            }
+            
+            let html = '';
+            
+            filteredOrders.forEach(order => {
+                html += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.customer.name}</td>
+                        <td>${formatDate(order.date)}</td>
+                        <td>${order.total} ر.س</td>
+                        <td>${order.deliveryMethod === 'delivery' ? 'توصيل' : 'استلام'}</td>
+                        <td><span class="status ${order.status}">${getStatusText(order.status)}</span></td>
+                        <td>
+                            <button class="action-btn btn-view" onclick="viewOrder('${order.id}')">عرض</button>
+                            ${order.status === 'pending' ? 
+                                `<button class="action-btn btn-process" onclick="processOrder('${order.id}')">معالجة</button>` : ''}
+                            ${order.status === 'processing' ? 
+                                `<button class="action-btn btn-complete" onclick="completeOrder('${order.id}')">إكمال</button>` : ''}
+                            ${order.status !== 'cancelled' ? 
+                                `<button class="action-btn btn-cancel" onclick="cancelOrder('${order.id}')">إلغاء</button>` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('ordersTableBody').innerHTML = html || `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 20px;">لا توجد طلبات</td>
+                </tr>
+            `;
+        }
+        
+        // فلتر الطلبات
+        function filterOrders(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderAllOrdersTable();
+        }
+        
+        // عرض تفاصيل الطلب
         function viewOrder(orderId) {
             const order = orders.find(o => o.id === orderId);
             if (!order) return;
             
+            currentOrder = order;
+            
             document.getElementById('orderId').textContent = order.id;
-            document.getElementById('customerName').textContent = order.customer;
-            document.getElementById('customerPhone').textContent = order.phone;
-            document.getElementById('deliveryMethod').textContent = order.method === 'delivery' ? 'توصيل' : 'استلام من المحل';
-            document.getElementById('deliveryAddress').textContent = order.address || 'لا يوجد';
-            document.getElementById('orderNotes').textContent = order.notes || 'لا يوجد';
+            document.getElementById('customerName').textContent = order.customer.name;
+            document.getElementById('customerPhone').textContent = order.customer.phone || 'غير متوفر';
+            document.getElementById('deliveryMethod').textContent = order.deliveryMethod === 'delivery' ? 'توصيل' : 'استلام من المحل';
+            document.getElementById('deliveryAddress').textContent = order.customer.address || 'غير متوفر';
+            document.getElementById('orderNotes').textContent = order.customer.notes || 'لا يوجد';
+            document.getElementById('orderStatus').textContent = getStatusText(order.status);
             
-            const orderItemsContainer = document.querySelector('.order-items');
-            let itemsHTML = '<h4 style="margin-bottom: 15px; color: var(--primary-color);">الطلبات</h4>';
-            
+            let itemsHTML = '';
             order.items.forEach(item => {
                 itemsHTML += `
                     <div class="order-item">
@@ -790,7 +911,7 @@
                 `;
             });
             
-            orderItemsContainer.innerHTML = itemsHTML;
+            document.getElementById('orderItemsList').innerHTML = itemsHTML;
             document.getElementById('modalOrderTotal').textContent = order.total + ' ر.س';
             
             document.getElementById('orderModal').classList.add('open');
@@ -805,7 +926,18 @@
             const orderIndex = orders.findIndex(o => o.id === orderId);
             if (orderIndex !== -1) {
                 orders[orderIndex].status = "processing";
-                renderOrdersTable();
+                localStorage.setItem('restaurantOrders', JSON.stringify(orders));
+                
+                // إضافة إشعار
+                addNotification(`تم تغيير حالة الطلب #${orderId} إلى "قيد التنفيذ"`);
+                
+                renderRecentOrders();
+                renderAllOrdersTable();
+                
+                if (currentOrder && currentOrder.id === orderId) {
+                    document.getElementById('orderStatus').textContent = getStatusText('processing');
+                }
+                
                 alert(`تم تغيير حالة الطلب #${orderId} إلى "قيد التنفيذ"`);
             }
         }
@@ -815,18 +947,42 @@
             const orderIndex = orders.findIndex(o => o.id === orderId);
             if (orderIndex !== -1) {
                 orders[orderIndex].status = "completed";
-                renderOrdersTable();
+                localStorage.setItem('restaurantOrders', JSON.stringify(orders));
+                
+                // إضافة إشعار
+                addNotification(`تم إكمال الطلب #${orderId}`);
+                
+                renderRecentOrders();
+                renderAllOrdersTable();
+                
+                if (currentOrder && currentOrder.id === orderId) {
+                    document.getElementById('orderStatus').textContent = getStatusText('completed');
+                }
+                
                 alert(`تم تغيير حالة الطلب #${orderId} إلى "مكتمل"`);
             }
         }
         
         // إلغاء الطلب
         function cancelOrder(orderId) {
-            const orderIndex = orders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                orders[orderIndex].status = "cancelled";
-                renderOrdersTable();
-                alert(`تم تغيير حالة الطلب #${orderId} إلى "ملغي"`);
+            if (confirm(`هل أنت متأكد من إلغاء الطلب #${orderId}؟`)) {
+                const orderIndex = orders.findIndex(o => o.id === orderId);
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = "cancelled";
+                    localStorage.setItem('restaurantOrders', JSON.stringify(orders));
+                    
+                    // إضافة إشعار
+                    addNotification(`تم إلغاء الطلب #${orderId}`);
+                    
+                    renderRecentOrders();
+                    renderAllOrdersTable();
+                    
+                    if (currentOrder && currentOrder.id === orderId) {
+                        document.getElementById('orderStatus').textContent = getStatusText('cancelled');
+                    }
+                    
+                    alert(`تم إلغاء الطلب #${orderId}`);
+                }
             }
         }
         
@@ -846,56 +1002,86 @@
         function toggleNotifications() {
             document.getElementById('notificationsModal').classList.toggle('open');
             updateNotificationCount();
-        }
-        
-        function markAllAsRead() {
-            notifications.forEach(notification => {
-                notification.read = true;
-            });
-            updateNotificationCount();
             renderNotifications();
         }
         
-        function updateNotificationCount() {
-            const unreadCount = notifications.filter(n => !n.read).length;
-            document.querySelector('.notification-count').textContent = unreadCount;
-        }
-        
         function renderNotifications() {
-            const notificationsContainer = document.querySelector('.notifications-body');
-            let notificationsHTML = '';
-            
+            let html = '';
             notifications.forEach(notification => {
-                notificationsHTML += `
-                    <div class="notification-item ${notification.read ? '' : 'unread'}" onclick="markAsRead(${notification.id})">
+                html += `
+                    <div class="notification-item ${notification.read ? '' : 'unread'}" onclick="markAsRead('${notification.id}')">
                         <div class="notification-text">${notification.text}</div>
                         <div class="notification-time">${notification.time}</div>
                     </div>
                 `;
             });
             
-            notificationsContainer.innerHTML = notificationsHTML;
+            document.getElementById('notificationsList').innerHTML = html || `
+                <div style="text-align: center; padding: 20px; color: #666;">لا توجد إشعارات</div>
+            `;
+        }
+        
+        function addNotification(text) {
+            const newNotification = {
+                id: Date.now().toString(),
+                text: text,
+                time: 'الآن',
+                read: false
+            };
+            
+            notifications.unshift(newNotification);
+            localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            updateNotificationCount();
+            renderNotifications();
         }
         
         function markAsRead(notificationId) {
             const notificationIndex = notifications.findIndex(n => n.id === notificationId);
             if (notificationIndex !== -1) {
                 notifications[notificationIndex].read = true;
+                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
                 updateNotificationCount();
                 renderNotifications();
             }
         }
         
-        // عرض الجدول
-        function renderOrdersTable() {
-            // في تطبيق حقيقي، هنا سيتم جلب البيانات من الخادم
-            console.log("تم تحديث جدول الطلبات");
+        function markAllAsRead() {
+            notifications.forEach(notification => {
+                notification.read = true;
+            });
+            
+            localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            updateNotificationCount();
+            renderNotifications();
+        }
+        
+        function updateNotificationCount() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            document.getElementById('notificationCount').textContent = unreadCount;
+        }
+        
+        // وظائف مساعدة
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('ar-SA');
+        }
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'قيد الانتظار',
+                'processing': 'قيد التنفيذ',
+                'completed': 'مكتمل',
+                'cancelled': 'ملغي'
+            };
+            return statusMap[status] || status;
         }
         
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', function() {
             updateNotificationCount();
             renderNotifications();
+            updateDashboardStats();
+            renderRecentOrders();
         });
     </script>
 </body>
